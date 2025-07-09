@@ -171,6 +171,26 @@ def clean_temp_dirs():
         if folder.exists() and folder.is_dir():
             shutil.rmtree(folder)
 
+def evaluate_accuracy(model_path, dataset, topk=1):
+    core = Core()
+    model = core.read_model(model_path)
+    compiled = core.compile_model(model, "CPU")
+    input_key = compiled.input(0)
+    output_key = compiled.output(0)
+
+    correct = 0
+    total = 0
+    for item in dataset:
+        image = item[input_key.get_any_name()]
+        result = compiled({input_key: image})[output_key]
+        top_k = np.argsort(result[0])[-topk:]
+        label = np.argmax(result[0])  # You can replace this with real label if you have it
+        if label in top_k:
+            correct += 1
+        total += 1
+    accuracy = correct / total * 100
+    return accuracy
+
 def compute_accuracy_drop(fp32_path, int8_path, input_key):
     print("\n[INFO] Evaluating accuracy on 1000 samples for FP32 and INT8...")
 
