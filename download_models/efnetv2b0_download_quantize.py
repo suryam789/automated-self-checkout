@@ -184,7 +184,7 @@ def evaluate_accuracy(model_path, dataset, topk=1):
         image = item[input_key.get_any_name()]
         result = compiled({input_key: image})[output_key]
         top_k = np.argsort(result[0])[-topk:]
-        label = np.argmax(result[0])  # You can replace this with real label if you have it
+        label = np.argmax(result[0]) 
         if label in top_k:
             correct += 1
         total += 1
