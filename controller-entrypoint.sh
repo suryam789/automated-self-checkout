@@ -1,20 +1,20 @@
 #!/bin/bash
 
-echo "🚀 ASC Controller Container Started!"
+echo "ASC Controller Container Started!"
 
 export MODEL_TYPE=${MODEL_TYPE:-yolo11n}
 export TARGET_DEVICE=${TARGET_DEVICE:-CPU}
 
-echo "📋 Configuration:"
+echo "Configuration:"
 echo "  MODEL_TYPE: $MODEL_TYPE"
 echo "  TARGET_DEVICE: $TARGET_DEVICE"
 
 echo ""
-echo "🔍 Checking Docker connectivity..."
+echo "Checking Docker connectivity..."
 docker --version
 
 echo ""
-echo "📥 Step 1: Building model downloader (sibling container)..."
+echo "Step 1: Building model downloader (sibling container)..."
 cd /workspace
 
 # Build with proxy settings
@@ -36,12 +36,12 @@ echo "Building model downloader with proxy settings..."
 docker build $BUILD_ARGS -t model-downloader:latest -f download_models/Dockerfile .
 
 echo ""
-echo "📥 Step 2: Running model download in sibling container (direct host mount)..."
+echo "Step 2: Running model download in sibling container (direct host mount)..."
 
 # Simple approach: Use environment variable passed from host
 HOST_MODELS_PATH="${HOST_MODELS_DIR:-/workspace/models}"
 
-echo "✅ Using host models path: $HOST_MODELS_PATH"
+echo "Using host models path: $HOST_MODELS_PATH"
 echo "Mounting: $HOST_MODELS_PATH -> /downloader_app/models"
 
 docker run --rm \
@@ -59,21 +59,21 @@ docker run --rm \
   model-downloader:latest
 
 echo ""
-echo "🧹 Step 3: Cleaning up model downloader image..."
+echo "Step 3: Cleaning up model downloader image..."
 docker rmi model-downloader:latest || echo "Image already removed"
 
 echo ""
-echo "📁 Models downloaded to host:"
+echo "Models downloaded to host:"
 ls -la /workspace/models/
 
-echo "✅ All models ready! Sibling container downloaded to mounted location."
+echo "All models ready! Sibling container downloaded to mounted location."
 
 echo ""
-echo "📦 Step 4: Updating submodules..."
+echo "Step 4: Updating submodules..."
 git submodule update --init --recursive || echo "Submodules update had issues"
 
 echo ""
-echo "🚀 Step 5: Starting application..."
+echo "Step 5: Starting application..."
 echo "Controller ready. Press Ctrl+C to stop."
 while true; do
     sleep 30
