@@ -8,15 +8,17 @@ if [ -n "$HTTPS_PROXY" ]; then
 fi
 
 VIDEO_SOURCE=${1:-""}
-# Updated paths for organized model structure
-FACE_MODEL="models/face_detection/FP16/face-detection-retail-0004.xml"
-AGE_MODEL="models/age_prediction/FP16/age-gender-recognition-retail-0013.xml"
+
+# Use MODELS_DIR environment variable instead of hardcoded path
+MODELS_DIR="${MODELS_DIR:-/downloader_app/models}"
+FACE_MODEL="$MODELS_DIR/face_detection/FP16/face-detection-retail-0004.xml"
+AGE_MODEL="$MODELS_DIR/age_prediction/FP16/age-gender-recognition-retail-0013.xml"
 DEVICE="CPU"
 
 set -e
 
-mkdir -p models/face_detection/FP16
-mkdir -p models/age_prediction/FP16
+mkdir -p "$MODELS_DIR/face_detection/FP16"
+mkdir -p "$MODELS_DIR/age_prediction/FP16"
 
 if [ -f "$FACE_MODEL" ] && [ -f "$AGE_MODEL" ]; then
     echo "Models already downloaded ✓"
@@ -26,36 +28,36 @@ else
     echo "Downloading models using Open Model Zoo downloader..."
     
     echo "Downloading face detection model..."
-    omz_downloader --name face-detection-retail-0004 --output_dir models/temp_face
+    omz_downloader --name face-detection-retail-0004 --output_dir "$MODELS_DIR/temp_face"
      
     echo "Downloading age prediction model..."
-    omz_downloader --name age-gender-recognition-retail-0013 --output_dir models/temp_age
+    omz_downloader --name age-gender-recognition-retail-0013 --output_dir "$MODELS_DIR/temp_age"
     
     echo "Organizing face detection model..."
-    if [ -d "models/temp_face/intel/face-detection-retail-0004" ]; then
-        cp -r models/temp_face/intel/face-detection-retail-0004/* models/face_detection/
+    if [ -d "$MODELS_DIR/temp_face/intel/face-detection-retail-0004" ]; then
+        cp -r "$MODELS_DIR/temp_face/intel/face-detection-retail-0004"/* "$MODELS_DIR/face_detection/"
     fi
     
     echo "Organizing age prediction model..."
-    if [ -d "models/temp_age/intel/age-gender-recognition-retail-0013" ]; then
-        cp -r models/temp_age/intel/age-gender-recognition-retail-0013/* models/age_prediction/
+    if [ -d "$MODELS_DIR/temp_age/intel/age-gender-recognition-retail-0013" ]; then
+        cp -r "$MODELS_DIR/temp_age/intel/age-gender-recognition-retail-0013"/* "$MODELS_DIR/age_prediction/"
     fi
     
-    rm -rf models/temp_face models/temp_age
+    rm -rf "$MODELS_DIR/temp_face" "$MODELS_DIR/temp_age"
     
     echo "Listing downloaded models..."
-    find models -name "*.xml" -o -name "*.bin" | sort
+    find "$MODELS_DIR" -name "*.xml" -o -name "*.bin" | sort
     
     echo "Model download and organization completed successfully!"
 fi
 
 echo "Downloading model-proc JSON files..."
 
-wget -O models/age_prediction/age-gender-recognition-retail-0013.json \
+wget -O "$MODELS_DIR/age_prediction/age-gender-recognition-retail-0013.json" \
     https://raw.githubusercontent.com/open-edge-platform/edge-ai-libraries/main/libraries/dl-streamer/samples/gstreamer/model_proc/intel/age-gender-recognition-retail-0013.json
 
-wget -O models/face_detection/face-detection-retail-0004.json \
+wget -O "$MODELS_DIR/face_detection/face-detection-retail-0004.json" \
     https://raw.githubusercontent.com/open-edge-platform/edge-ai-libraries/main/libraries/dl-streamer/samples/gstreamer/model_proc/intel/face-detection-retail-0004.json
 
 echo "Downloaded JSON files:"
-ls models/age_prediction/*.json models/face_detection/*.json
+ls "$MODELS_DIR/age_prediction"/*.json "$MODELS_DIR/face_detection"/*.json

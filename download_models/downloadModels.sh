@@ -6,8 +6,8 @@
 #
 
 
-# Source the export_yolo_model function from /workspace/downloadAndQuantizeModel.sh
-source /workspace/downloadAndQuantizeModel.sh
+# Source the export_yolo_model function from /workspace/download_models/downloadAndQuantizeModel.sh
+source /downloader_app/downloadAndQuantizeModel.sh
 
 modelPrecisionFP16INT8="FP16-INT8"
 modelPrecisionFP32INT8="FP32-INT8"
@@ -38,7 +38,7 @@ echo "REFRESH_MODE: $REFRESH_MODE"
 
 MODEL_EXEC_PATH="$(dirname "$(readlink -f "$0")")"
 # Allow override of modelDir via environment variable (for container flexibility)
-modelDir="${MODELS_DIR:-$(dirname "$MODEL_EXEC_PATH")/models}"
+modelDir="${MODELS_DIR:-/downloader_app/models}"
 mkdir -p "$modelDir"
 cd "$modelDir" || { echo "Failure to cd to $modelDir"; exit 1; }
 

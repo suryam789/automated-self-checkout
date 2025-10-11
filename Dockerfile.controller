@@ -1,0 +1,22 @@
+FROM ubuntu:22.04
+
+# Install Docker CLI and basic tools only (no Python quantization libs)
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    bash \
+    curl \
+    git \
+    make \
+    wget && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy the entire application into the container
+COPY . /workspace/
+
+# Make all shell scripts executable
+RUN find /workspace -name "*.sh" -exec chmod +x {} \;
+
+ENTRYPOINT ["/workspace/controller-entrypoint.sh"]
